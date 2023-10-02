@@ -1,5 +1,5 @@
 <x-front-layout title="Home">
-    <x-slot:subcategory>
+        <x-slot:subcategory>
         <div class="mega-category-menu">
             <span class="cat-button"><i class="lni lni-menu"></i>All Categories</span>
             <ul class="sub-category">

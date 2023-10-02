@@ -67,9 +67,4 @@ class CartController extends Controller
         $this->cart->delete($id);
     }
 
-    public function removeCartItem($id)
-    {
-        $this->cart->delete($id);
-        return response()->json(['message' => 'Item removed from cart']);
-    }
 }

@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 @section('subtitle', 'Dashboard')
 @section('pagename')
-    <li class="breadcrumb-item"><a href="{{ route('categories.index') }}">Home</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('index') }}">Home</a></li>
     <li class="breadcrumb-item active">Main</li>
 @endsection
 

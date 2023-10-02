@@ -76,9 +76,14 @@
                                 <p>{{ Currency::format(0) }}</p>
                             </div>
                             <div class="col-lg-1 col-md-2 col-12">
-                                <a href="#" class="text-muted" onclick="removeCartItem({{ $item->id }})">
-                                    <i class="lni lni-close"></i>
-                                </a>
+                                <form id="delete-form-{{ $item->id }}"
+                                    action="{{ route('cart.destroy', $item->id) }}" method="post">
+                                    @csrf
+                                    @method('delete')
+                                    <button type="submit" class="btn btn-outline-danger delete-item"
+                                        data-id="{{ $item->id }}">Delete</button>
+                                </form>
+
                             </div>
                         </div>
                     </div>
@@ -120,10 +125,14 @@
                                         </li>
                                     </ul>
                                     <div class="button">
-                                        <form action="{{ route('checkout') }}" method="post">
-                                            <a href="{{ route('checkout') }}" class="btn mb-10">Checkout</a>
-                                        </form>
-                                        <a href="{{ route('home') }}" class="btn btn-alt mt-10">Continue shopping</a>
+                                        <div class="mb-10">
+                                            <form action="{{ route('checkout') }}" method="post">
+                                                <a href="{{ route('checkout') }}" class="btn mb-10">Checkout</a>
+                                            </form>
+                                        </div>
+                                        <div>
+                                            <a href="{{ route('home') }}" class="btn btn-alt">Continue shopping</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -134,18 +143,6 @@
             </div>
         </div>
     </div>
-    <x-slot:footer>
-        @isset($categories)
-            <div class="single-footer f-link">
-                <h3>Shop Departments</h3>
-                <ul>
-                    @foreach ($categories as $item)
-                        <li><a href="javascript:void(0)">{{ $item->name }}</a></li>
-                    @endforeach
-                </ul>
-            </div>
-        @endisset
-    </x-slot:footer>
     @push('scripts')
         <script>
             (function($) {
@@ -166,38 +163,24 @@
                     });
                 });
 
-                // $('.remove-item').on('click', function(e) {
-                //     e.preventDefault();
-                //     let id = $(this).data('id');
-                //     $.ajax({
-                //         url: "{{ route('cart.destroy', '_id_') }}".replace('_id_', id),
-                //         method: 'delete',
-                //         data: {
-                //             _token: _token
-                //         },
-                //         success: response => {
-                //             $(`#${id}`).remove();
-                //             console.log('Item removed from cart');
-                //         }
-                //     });
-                // });
+                $('.delete-item').on('click', function(e) {
+                    e.preventDefault();
+                    let id = $(this).data('id');
+                    $.ajax({
+                        url: "/cart/" + id,
+                        method: 'delete',
+                        data: {
+                            _token: _token
+                        },
+                        success: response => {
+                            $('#delete-form-' + id)
+                        .remove(); // Remove the form after successful deletion
+                            $('#' + id).remove(); // Remove the item from the cart list
+                            console.log('Item removed from cart');
+                        }
+                    });
+                });
             })(jQuery);
-
-        //     function removeCartItem(cartItemId) {
-        //         $.ajax({
-        //             type: 'POST',
-        //             url: '{{ route('cart.remove', ['id']) }}/' + cartItemId,
-        //             data: {
-        //                 _token: '{{ csrf_token() }}',
-        //             },
-        //             success: function(response) {
-        //                 location.reload();
-        //             },
-        //             error: function(error) {
-        //                 console.error('Error removing cart item:', error);
-        //             }
-        //         });
-        //     }
-        // </script>
+        </script>
     @endpush
 </x-front-layout>

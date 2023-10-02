@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Events\OrderCreated;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -35,7 +36,13 @@ class CheckoutController extends Controller
 
     public function store(Request $request, CartRepository $cart)
     {
-        $request->validate([]);
+        $request->validate([
+            // 'add.billing.first_name' => ['required', 'string', 'max:255'],
+            // 'add.billing.last_name' => ['required', 'string', 'max:255'],
+            // 'add.billing.email' => ['required', 'string', 'max:255'],
+            // 'add.billing.phone_number' => ['required', 'string', 'max:255'],
+            // 'add.billing.city' => ['required', 'string', 'max:255'],
+        ]);
 
         $items = $cart->get()->groupBy('product.store_id')->all();
 
@@ -43,9 +50,9 @@ class CheckoutController extends Controller
         try {
             foreach ($items as $store_id => $cart_items) {
                 foreach ($cart_items as $item) {
-                    if (!$item || !$item->product) {
-                        dd("Problematic item:", $item);
-                    }
+                    // if (!$item || !$item->product) {
+                    //     dd("Problematic item:", $item);
+                    // }
 
                     $order = Order::create([
                         'store_id' => $store_id,
@@ -71,11 +78,15 @@ class CheckoutController extends Controller
                 $this->cart->empty();
             }
             DB::commit();
+
+            // event('order.created', $order);
+            event(new OrderCreated($order));
+
         } catch (Throwable $e) {
             DB::rollBack();
             throw $e;
         }
 
-        return redirect()->route('home');
+        return redirect()->route('orders.payments.create', $order->id);
     }
 }

@@ -36,6 +36,7 @@
             </div>
 
             <ul class="navbar-nav ml-auto">
+                <x-dashboard.notifications-menu count="7"/>
                 <li class="nav-item">
                     <a class="nav-link" data-widget="fullscreen" href="#" role="button">
                         <i class="fas fa-expand-arrows-alt"></i>
@@ -47,8 +48,8 @@
                             height="40" alt="">
                     </a>
                     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-3">
-                        <h4 class="h4 mb-0"><strong>Mohit Singh</strong></h4>
-                        <div class="mb-3">example@example.com</div>
+                        <h4 class="h4 mb-0"><strong>{{ Auth::user()->name }}</strong></h4>
+                        <div class="mb-3">{{ Auth::user()->email }}</div>
                         <div class="dropdown-divider"></div>
                         <a href="{{ route('profile.edit') }}" class="dropdown-item">
                             <i class="fas fa-user-cog mr-2"></i> Profile
@@ -86,7 +87,7 @@
             <!-- Sidebar -->
             <div class="sidebar">
                 <!-- Sidebar user (optional) -->
-                <x-nav/>
+                <x-nav />
                 <!-- /.sidebar-menu -->
             </div>
             <!-- /.sidebar -->
@@ -130,6 +131,10 @@
     <script src="{{ asset('admin/js/adminlte.min.js') }}"></script>
     <!-- AdminLTE for demo purposes -->
     <script src="{{ asset('admin/js/demo.js') }}"></script>
+    <script>
+        const userID = "{{ Auth::id() }}";
+    </script>
+    <script src="{{ asset('js/app.js') }}"></script>
     @yield('js')
 </body>
 

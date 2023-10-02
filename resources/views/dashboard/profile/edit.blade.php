@@ -10,7 +10,7 @@
     <section class="content">
         <!-- Default box -->
         <div class="container-fluid">
-            <form action="{{ route('profile.update') }}" method="post" enctype="multipart/form-data">
+            <form action="{{ route('dashboard.profile.update') }}" method="post" enctype="multipart/form-data">
                 @csrf
                 @method('patch')
                 <div class="form-row mb-3">

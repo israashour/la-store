@@ -8,8 +8,8 @@
 @section('content')
     <section class="content">
         <div class="col-sm-12 text-right mb-5">
-            <a href="{{ route('stores.create') }}" class="btn btn-primary mr-5">New Store</a>
-            <a href="{{ route('stores.trash') }}" class="btn btn-dark ">Trash</a>
+            <a href="{{ route('dashboard.stores.create') }}" class="btn btn-primary mr-5">New Store</a>
+            <a href="{{ route('dashboard.stores.trash') }}" class="btn btn-dark ">Trash</a>
         </div>
 
         <x-alret />
@@ -59,14 +59,14 @@
                                 <td>{{ $store->created_at }}</td>
                                 <td width="30">
                                     <a class="btn btn-outline-primary"
-                                        href="{{ route('stores.edit', $store->id) }}">Edit</a>
+                                        href="{{ route('dashboard.stores.edit', $store->id) }}">Edit</a>
                                 </td>
                                 <td width="30">
-                                    <form action="{{ route('stores.destroy', $store->id) }}" method="post">
+                                    <form action="{{ route('dashboard.stores.destroy', $store->id) }}" method="post">
                                         @csrf
                                         @method('delete')
                                         <button type="submit" class="btn btn-outline-danger"
-                                            href="{{ route('stores.destroy', $store->id) }}">Delete</button>
+                                            href="{{ route('dashboard.stores.destroy', $store->id) }}">Delete</button>
                                     </form>
                                 </td>
                             </tr>

@@ -69,9 +69,6 @@ class CartModelRepository implements CartRepository
 
     public function total() : float
     {
-        // return (float) Cart::join('products', 'products.id', '=', 'carts.product_id')
-        //     ->selectRaw('SUM(products.price * carts.qty) as total')
-        //     ->value('total');
         return $this->get()->sum(function($item) {
             return $item->qty * $item->product->price;
         });

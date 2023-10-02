@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
@@ -19,6 +20,9 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
+        if(Gate::denies('categories.view')) {
+            abort(403);
+        }
         $request = request();
 
         $categories = Category::with('parent')
@@ -43,6 +47,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
+        Gate::authorize('categories.create');
         $category = new Category();
         $parents = Category::all();
         return view('dashboard.categories.create', compact('parents', 'category'));
@@ -53,6 +58,7 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        Gate::authorize('categories.create');
         $clean_data = $request->validate(Category::rules(), [
             'required' => 'This field is required!',
             'unique' => 'This name is already exists!'
@@ -74,6 +80,7 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
+        Gate::authorize('categories.view');
         return view('dashboard.categories.show', [
             'category' => $category
         ]);
@@ -84,6 +91,8 @@ class CategoryController extends Controller
      */
     public function edit($id)
     {
+        Gate::authorize('categories.update');
+
         try {
             $category = Category::findOrFail($id);
         } catch (Exception $e) {
@@ -106,6 +115,8 @@ class CategoryController extends Controller
      */
     public function update(CategoryRequest $request, $id)
     {
+        // Gate::authorize('categories.update');
+
         $category = Category::find($id);
 
         $old_image = $category->image;
@@ -129,11 +140,11 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
+        Gate::authorize('categories.delete');
+
         $category = Category::findOrFail($id);
 
         $deleted = $category->delete();
-
-        //
 
         if ($deleted) {
             return redirect()->route('categories.index')->with('success', 'Category deleted successfully!');
@@ -171,6 +182,7 @@ class CategoryController extends Controller
 
     public function forceDelete($id)
     {
+        Gate::authorize('categories.delete');
         $category = Category::onlyTrashed()->findOrFail($id);
         $category->forceDelete();
 

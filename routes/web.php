@@ -5,13 +5,21 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\RolesController;
+use App\Http\Controllers\Admin\StoreController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Auth\SocialLoginController;
+use App\Http\Controllers\Front\Auth\TwoFactorAuthenticationController;
 use App\Http\Controllers\Front\CartController;
 use App\Http\Controllers\Front\CheckoutController;
+use App\Http\Controllers\Front\CurrencyController;
 use App\Http\Controllers\Front\FrontProductsController;
 use App\Http\Controllers\Front\HomeController;
+use App\Http\Controllers\Front\PaymentsController;
+use App\Http\Controllers\SocialController;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
-use Ramsey\Uuid\Codec\OrderedTimeCodec;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,11 +32,11 @@ use Ramsey\Uuid\Codec\OrderedTimeCodec;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
-Route::group(['middleware' => ['auth', 'auth.type:admin,super-admin'], 'prefix' => 'dashboard'], function () {
+Route::group(['middleware' => ['auth:admin'], 'prefix' => 'admin/dashboard',], function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('index');
     Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -44,6 +52,7 @@ Route::group(['middleware' => ['auth', 'auth.type:admin,super-admin'], 'prefix' 
     Route::put('/products/{product}/restore', [ProductController::class, 'restore'])->name('products.restore');
     Route::delete('/products/{product}/force-delete', [ProductController::class, 'forceDelete'])->name('products.force-delete');
 
+    Route::get('/products', [ProductController::class, 'index'])->name('dashboard.products.index');
     Route::resource('/products', ProductController::class);
 
     Route::get('/stores/trash', [StoreController::class, 'trash'])->name('stores.trash');
@@ -57,7 +66,7 @@ Route::group(['middleware' => ['auth', 'auth.type:admin,super-admin'], 'prefix' 
     // Route::patch('/orders/{orderId}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::resource('/orders', OrderController::class);
 
-
+    Route::resource('/roles', RolesController::class);
 });
 
 // Route::get('/dashboard', function () {
@@ -70,21 +79,40 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/', [HomeController::class, 'index'])
-->name('home');
+Route::group([
+    'prefix' => LaravelLocalization::setLocale(),
+], function () {
+    Route::get('/', [HomeController::class, 'index'])
+        ->name('home');
 
-Route::get('/products', [FrontProductsController::class, 'index'])
-->name('products.index');
-Route::get('/products/{product:slug}', [FrontProductsController::class, 'show'])
-->name('products.show');
+    Route::get('/products/home', [FrontProductsController::class, 'show'])
+        ->name('products.index');
+    Route::get('/products/{product:slug}', [FrontProductsController::class, 'show'])
+        ->name('products.show');
 
-Route::post('cart/remove/{id}', [CartController::class, 'removeCartItem'])->name('cart.remove');
-Route::resource('cart', CartController::class);
+    Route::resource('cart', CartController::class);
 
-Route::get('checkout', [CheckoutController::class, 'create'])->name('checkout');
-Route::post('checkout', [CheckoutController::class, 'store']);
+    Route::get('checkout', [CheckoutController::class, 'create'])->name('checkout');
+    Route::post('checkout', [CheckoutController::class, 'store']);
 
-require __DIR__.'/auth.php';
+    Route::get('auth/user/2fa', [TwoFactorAuthenticationController::class, 'index'])->name('public.2fa');
+
+    Route::post('currency', [CurrencyController::class, 'store'])->name('currency.store');
+});
+
+Route::get('auth/{provider}/redirect', [SocialLoginController::class, 'redirect'])
+    ->name('auth.socilait.redirect');
+Route::get('auth/{provider}/callback', [SocialLoginController::class, 'callback'])
+    ->name('auth.socilait.callback');
+
+Route::get('auth/{provider}/user', [SocialController::class, 'index']);
+
+Route::get('orders/{order}/pay', [PaymentsController::class, 'create'])->name('orders.payments.create');
+
+Route::get('orders/{order}/stripe/payment-intent', [PaymentsController::class, 'createStripePayment'])->name('stripe.paymentIntent.create');
+Route::get('orders/{order}/pay/stripe/callback', [PaymentsController::class, 'confirm'])->name('stripe.return');
+
+// require __DIR__.'/auth.php';
 
 Route::fallback(function () {
     return view('errors/error404');
